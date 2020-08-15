@@ -92,19 +92,19 @@ export const ChromogenObserver = () => {
   useEffect(() => document.getElementById('chromogen-download').click(), [file]);
 
   useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
-    console.log('NEW TRANSACTION')
+    console.log(`NEW TRANSACTION, recordingState: ${recording}, *snapshot*recordingState: ${snapshot.getLoadable(recordingState).contents}`)
     // Map current snapshot to array of atom states
-    if (recording) {
+    if (snapshot.getLoadable(recordingState).contents) { // Snapshot fires before with updated state BEFORE updating atom state
       const state = writeables.map((item) => {
         const { key } = item;
         const value = snapshot.getLoadable(item).contents;
-        const len = snapshots.length; console.log('snapshot len:', len);
+        const len = snapshots.length;
         let updated = true;
         // Check whether value is updated from last snapshot
         if (len > 0) {
           updated = (snapshots[len - 1].state.find((el) => el.key === key).value !== value) ? true : false;
         }
-        console.log(`${key} updated: ${updated}`)
+        // console.log(`${key} updated: ${updated}`)
         return { key, value, updated };
       });
 
@@ -132,9 +132,9 @@ export const ChromogenObserver = () => {
         aria-label={recording ? 'pause' : 'record'}
         style={{ ...buttonStyle, backgroundColor: recording ? 'red' : 'yellow', left: '30px' }}
         type="button"
-        onClick={() => {
-          setRecording(!recording);
-        }}
+        onClick={() => 
+          setRecording(!recording)
+        }
       />
       <a
         download="chromogen.test.js"
