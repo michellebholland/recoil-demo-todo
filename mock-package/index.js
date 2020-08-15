@@ -100,7 +100,7 @@ export const ChromogenObserver = () => {
         const value = snapshot.getLoadable(item).contents;
         const len = snapshots.length;
         let updated = true;
-        // Check whether value is updated from last snapshot
+        // Check whether value is updated from either last snapshot or default value
         if (len > 0) {
           updated = (snapshots[len - 1].state.find((el) => el.key === key).value !== value) ? true : false;
         } else if (len === 0) {

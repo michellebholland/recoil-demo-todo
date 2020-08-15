@@ -43,7 +43,7 @@ describe('SELECTORS', () => {
         const updated = state.filter(({updated}) => updated === true);
         const len = updated.length;
        return len && selectors.length ?
-        `${tests}it('Selectors should properly derive state when${updated.slice(0, -1).reduce((list, {key, updated}, i) => `${list} ${key}${i === len - 2 ? '' : ','}`, '')} ${len === 1 ? `${updated[len - 1].key} updates` : `and ${updated[len - 1].key} update`}', () => {
+        `${tests}it('${selectors.slice(0, -1).reduce((list, {key}, i) => `${list}${key}${i === len - 2 ? '' : ','}`, '')}${selectors.length === 1 ? `${selectors[len - 1].key}` : `and ${selectors[len - 1].key}`} should properly derive state when${updated.slice(0, -1).reduce((list, {key, updated}, i) => `${list} ${key}${i === len - 2 ? '' : ','}`, '')} ${len === 1 ? `${updated[len - 1].key} updates` : `and ${updated[len - 1].key} update`}', () => {
       const { result } = renderRecoilHook(useStoreHook);
   
       act(() => {
@@ -73,7 +73,7 @@ describe('SELECTORS', () => {
 
 export default output;
 
-
+// educe((list, {key, updated}, i) => `${list} ${key}${i === len - 2 ? '' : ','}`, '')} ${len === 1 ? `${updated[len - 1].key} updates` : `and ${updated[len - 1].key} update`}
 // state.reduce((list, {key, updated}) => `${list} ${ updated ? ` ${key},` : ''}`, '' )
 
 // PENDING TESTS
