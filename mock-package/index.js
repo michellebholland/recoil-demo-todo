@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Children } from 'react';
 import {
   // eslint-disable-next-line camelcase
   useRecoilTransactionObserver_UNSTABLE,
@@ -20,9 +20,8 @@ const recordingState = recoilAtom({ key: 'recordingState', default: true });
 // ----- SHADOW CONSTRUCTORS for SELECTOR / ATOM -----
 export const selector = (config) => {
   const { key, get, set } = config;
-
   // Inject code to "get" method of selector
-  const getter = get
+  const getter = get 
     ? (arg) => {
         const newValue = get(arg);
         if (arg.get(recordingState)) {
@@ -107,13 +106,12 @@ export const ChromogenObserver = () => {
         } else if (len === 0) {
           updated = (item.default === value) ? false : true;
         } 
-        // console.log(`${key} updated: ${updated}`)
         return { key, value, updated };
       });
 
       // Add current transaction snapshot to snapshots array
       snapshots.push({ state, selectors: [] });
-      console.log(snapshots.length)
+
     }
   });
 

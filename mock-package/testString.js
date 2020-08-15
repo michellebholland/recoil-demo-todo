@@ -42,9 +42,8 @@ describe('SELECTORS', () => {
     (tests, { state, selectors }, index) => {
         const updated = state.filter(({updated}) => updated === true);
         const len = updated.length;
-       return len ?
-        `${tests}it('Selectors should properly derive state when
-       ${updated.slice(0, -1).reduce((list, {key, updated}) => `${list}${key}, `, '')} ${len === 1 ? `${updated[len - 1].key} updates` : `and ${updated[len - 1].key} update`}', () => {
+       return len && selectors.length ?
+        `${tests}it('Selectors should properly derive state when${updated.slice(0, -1).reduce((list, {key, updated}, i) => `${list} ${key}${i === len - 2 ? '' : ','}`, '')} ${len === 1 ? `${updated[len - 1].key} updates` : `and ${updated[len - 1].key} update`}', () => {
       const { result } = renderRecoilHook(useStoreHook);
   
       act(() => {
@@ -56,10 +55,13 @@ describe('SELECTORS', () => {
       });
   
       ${selectors.reduce(
-        (assertions, { key, newValue }) =>
-          `${assertions}expect(result.current.${key}Value).toStrictEqual(${JSON.stringify(
+        (assertions, { key, newValue }) => {
+          const cache = {}
+          if (key in cache) return; // stopgap for bug that causes duplicate assertions
+          cache[key] = true;
+          return `${assertions}expect(result.current.${key}Value).toStrictEqual(${JSON.stringify(
             newValue,
-          )});\n\n`,
+          )});\n\n` },
         '',
       )}
     });\n\n` :
