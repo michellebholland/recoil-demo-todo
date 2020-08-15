@@ -1,5 +1,5 @@
 const output = (writeables, readables, snapshots, initialRender) =>
-  console.log(`import { renderRecoilHook, act } from 'react-recoil-hooks-testing-library';
+  `import { renderRecoilHook, act } from 'react-recoil-hooks-testing-library';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import {
   ${
@@ -10,14 +10,11 @@ import {
 
 // Hook to return atom/selector values and/or modifiers for react-recoil-hooks-testing-library
 const useStoreHook = () => {
-  // atoms & writeable selectors
   ${writeables.reduce(
     (str, { key }) => `${str}const [${key}Value, set${key}] = useRecoilState(${key});\n`,
     '',
   )}
-  // selectors - read only
   ${readables.reduce((str, { key }) => `${str}const ${key}Value = useRecoilValue(${key});\n`, '')}
-  
   return {
     ${
       writeables.reduce((value, { key }) => `${value}${key}Value,\nset${key},\n`, '')
@@ -26,11 +23,6 @@ const useStoreHook = () => {
   };
 };
 
-/* Initial state tests require:  
-  1. name/key of atom (used in string passed as first arg to 'test()')
-  2. label for read state value (prop on result.current, passed as arg to expect())
-  3. *captured* inital state value (arg passed to toStrictEqual())  
-*/
 describe('INITIAL RENDER', () => { 
   const { result } = renderRecoilHook(useStoreHook); 
 
@@ -45,15 +37,14 @@ describe('INITIAL RENDER', () => {
   )}
 });
 
-
-
-
-/* Test that selectors return the correct value for a given state */
-
 describe('SELECTORS', () => {
   ${snapshots.reduce(
-    (tests, { state, selectors }, index) =>
-      `${tests}it('State-${index + 1}', () => {
+    (tests, { state, selectors }, index) => {
+        const updated = state.filter(({updated}) => updated === true);
+        const len = updated.length;
+       return len ?
+        `${tests}it('Selectors should properly derive state when
+       ${updated.slice(0, -1).reduce((list, {key, updated}) => `${list}${key}, `, '')} ${updated[len - 1].key} update${len === 1 ? 's' : ''}', () => {
       const { result } = renderRecoilHook(useStoreHook);
   
       act(() => {
@@ -71,12 +62,17 @@ describe('SELECTORS', () => {
           )});\n\n`,
         '',
       )}
-    });\n\n`,
+    });\n\n` :
+      tests;
+  },
     '',
   )}
+})`;
 
-})
-`);
+export default output;
+
+
+// state.reduce((list, {key, updated}) => `${list} ${ updated ? ` ${key},` : ''}`, '' )
 
 // PENDING TESTS
 
@@ -169,4 +165,4 @@ describe('SELECTORS', () => {
 //   ]);
 // });
 
-export default output;
+
