@@ -44,7 +44,7 @@ describe('SELECTORS', () => {
         const len = updated.length;
        return len ?
         `${tests}it('Selectors should properly derive state when
-       ${updated.slice(0, -1).reduce((list, {key, updated}) => `${list}${key}, `, '')} ${updated[len - 1].key} update${len === 1 ? 's' : ''}', () => {
+       ${updated.slice(0, -1).reduce((list, {key, updated}) => `${list}${key}, `, '')} ${len === 1 ? `${updated[len - 1].key} updates` : `and ${updated[len - 1].key} update`}', () => {
       const { result } = renderRecoilHook(useStoreHook);
   
       act(() => {
