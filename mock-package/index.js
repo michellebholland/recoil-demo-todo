@@ -57,6 +57,7 @@ export const selector = (config) => {
 
 export const atom = (config) => {
   const newAtom = recoilAtom(config);
+  newAtom.default = config.default; // can't destructure default from config?
   writeables.push(newAtom);
   return newAtom;
 };
@@ -103,13 +104,16 @@ export const ChromogenObserver = () => {
         // Check whether value is updated from last snapshot
         if (len > 0) {
           updated = (snapshots[len - 1].state.find((el) => el.key === key).value !== value) ? true : false;
-        }
+        } else if (len === 0) {
+          updated = (item.default === value) ? false : true;
+        } 
         // console.log(`${key} updated: ${updated}`)
         return { key, value, updated };
       });
 
       // Add current transaction snapshot to snapshots array
       snapshots.push({ state, selectors: [] });
+      console.log(snapshots.length)
     }
   });
 
