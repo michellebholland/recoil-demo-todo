@@ -30,7 +30,8 @@ export const selector = (config) => {
           if (len === 0) {
             initialRender.push({ key, newValue });
           } else {
-            snapshots[len - 1].selectors.push({ key, newValue });
+           snapshots[len - 1].selectors.push({ key, newValue });
+            console.log({key, newValue}, snapshots[snapshots.length - 1].selectors.length);
           }
         }
         return newValue;
@@ -50,6 +51,7 @@ export const selector = (config) => {
 
   // Add selector object to "readables" array
   readables.push(newSelector);
+  if (set) writeables.push(newSelector);
 
   // Return the normal selector out to the app
   return newSelector;
@@ -97,7 +99,7 @@ export const ChromogenObserver = () => {
     console.log(`               NEW TRANSACTION! ${snapshot.getLoadable(recordingState).contents && recording ? 'and recording! Data below!' : 'But NOT recording.'}`)
     let addToHistory = false;
     // Map current snapshot to array of atom states
-    if (snapshot.getLoadable(recordingState).contents && recording) { // Snapshot fires before with updated state BEFORE updating atom state
+  setTimeout( () => { if (snapshot.getLoadable(recordingState).contents && recording) { // Snapshot fires before with updated state BEFORE updating atom state
       const state = writeables.map((item, i) => {
         const { key } = item;
         const value = snapshot.getLoadable(item).contents;
@@ -112,11 +114,12 @@ export const ChromogenObserver = () => {
       // Add current transaction snapshot to snapshots array
       if (addToHistory) {
         snapCount += 1;
-        console.log(`snapshot object number: ${snapCount}`);
         snapshots.push({ state, selectors: [], snapCount });
+        console.log(`snapshot object number: ${snapCount}}`);
+        console.log(snapshot.getLoadable(recordingState).contents, recording)
       }
-
-    }
+   };
+  }, 500)
   });
 
   // Render button to DOM for capturing test output, and creates invisible download link for test file
