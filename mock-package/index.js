@@ -14,6 +14,7 @@ const writeables = [];
 const readables = [];
 const snapshots = [];
 const initialRender = [];
+let snapCount = 0;
 
 const recordingState = recoilAtom({ key: 'recordingState', default: true });
 
@@ -92,7 +93,8 @@ export const ChromogenObserver = () => {
   useEffect(() => document.getElementById('chromogen-download').click(), [file]);
 
   useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
-    console.log(`NEW TRANSACTION, recordingState: ${recording}, *snapshot*recordingState: ${snapshot.getLoadable(recordingState).contents}`)
+    // console.log(`           NEW TRANSACTION, recordingState: ${recording}, *snapshot*recordingState: ${snapshot.getLoadable(recordingState).contents}`)
+    console.log(`               NEW TRANSACTION! ${snapshot.getLoadable(recordingState).contents && recording ? 'and recording! Data below!' : 'But NOT recording.'}`)
     let addToHistory = false;
     // Map current snapshot to array of atom states
     if (snapshot.getLoadable(recordingState).contents && recording) { // Snapshot fires before with updated state BEFORE updating atom state
@@ -108,7 +110,11 @@ export const ChromogenObserver = () => {
       });
 
       // Add current transaction snapshot to snapshots array
-      if (addToHistory) snapshots.push({ state, selectors: [] });
+      if (addToHistory) {
+        snapCount += 1;
+        console.log(`snapshot object number: ${snapCount}`);
+        snapshots.push({ state, selectors: [], snapCount });
+      }
 
     }
   });
@@ -120,8 +126,9 @@ export const ChromogenObserver = () => {
         aria-label="capture test"
         style={{ ...buttonStyle, backgroundColor: 'green' }}
         type="button"
-        onClick={() =>
-          setFile(
+        onClick={() => 
+         
+           setFile(
             URL.createObjectURL(
               new Blob([output(writeables, readables, snapshots, initialRender)]),
             ),

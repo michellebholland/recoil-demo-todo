@@ -38,11 +38,11 @@ describe('INITIAL RENDER', () => {
 });
 
 describe('SELECTORS', () => {
-  ${snapshots.reduce((tests, { state, selectors }, index) => {
+  ${snapshots.reduce((tests, { state, selectors, snapCount }, index) => {
     const updated = state.filter(({ updated }) => updated);
     const len = updated.length;
-    // return len && selectors.length
-      return `${tests}it('${selectors
+    return len && selectors.length
+      ? `${tests}it('${snapCount}${selectors
           .slice(0, -1)
           .reduce(
             (list, { key }, i) => `${list}${key}${i === selectors.length - 2 ? ' ' : ', '}`,
@@ -79,8 +79,8 @@ describe('SELECTORS', () => {
           )});\n\n` },
         '',
       )}
-    });\n\n` //:
-      // tests;
+    });\n\n` :
+       tests;
   },
     '',
   )}

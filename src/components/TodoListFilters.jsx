@@ -28,6 +28,7 @@ const TodoListFilters = () => {
   const toggleSort = () => setSort(!sort);
   const toggleDisplayStats = () => setDisplayStats(!displayStats);
   const reset = () => {
+    console.log('Refresh fired!!!! Snapshot data below:');
     setDisplayStats(false); // displayStats is local state
     resetFilters();
   };
