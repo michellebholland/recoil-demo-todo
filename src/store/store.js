@@ -79,9 +79,9 @@ const todoListStatsState = selector({
 const refreshFilterState = selector({
   key: 'refreshFilterState',
   get: () => null,
-  set: ({ set }) => {
-    set(todoListSortState);
-    set(todoListFilterState);
+  set: ({ reset }) => {
+    reset(todoListSortState);
+    reset(todoListFilterState);
   },
 });
 

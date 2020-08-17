@@ -40,10 +40,8 @@ describe('INITIAL RENDER', () => {
 describe('SELECTORS', () => {
   ${snapshots.reduce((tests, { state, selectors, snapCount }, index) => {
     const updated = state.filter(({ updated }) => updated);
-    const slicer = (updated.length === 1) ? 1 : -1
-    const slicer1 = (selectors.length === 1) ? 1 : -1
-    return updated.length
-      ? `${tests}it('${snapCount}${selectors
+    return updated.length && selectors.length
+      ? `${tests}it('${index}${selectors
           .slice(0)
           .reduce(
             (list, { key }, i) => `${list}${key}${i === selectors.length - 2 ? ' ' : ', '}`,

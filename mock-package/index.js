@@ -12,9 +12,10 @@ import output from './testString';
 // Arrays used to compose test string
 const writeables = [];
 const readables = [];
-const snapshots = [];
+let snapshots = [];
 const initialRender = [];
 let snapCount = 0;
+let last;
 
 const recordingState = recoilAtom({ key: 'recordingState', default: true });
 
@@ -30,8 +31,11 @@ export const selector = (config) => {
           if (len === 0) {
             initialRender.push({ key, newValue });
           } else {
-           snapshots[len - 1].selectors.push({ key, newValue });
-            console.log({key, newValue}, snapshots[snapshots.length - 1].selectors.length);
+           setTimeout(() =>  {
+            snapshots[len - 1].selectors.push({ key, newValue });
+            console.log({key, newValue}, 'updated snapshot length: ', snapshots.length, 'snapshot[len - 1].selectors.length', snapshots[snapshots.length - 1].selectors.length);
+           }
+           , 500) 
           }
         }
         return newValue;
@@ -51,7 +55,7 @@ export const selector = (config) => {
 
   // Add selector object to "readables" array
   readables.push(newSelector);
-  if (set) writeables.push(newSelector);
+  // if (set) writeables.push(newSelector); // allows us to list writeable selectors in test string description
 
   // Return the normal selector out to the app
   return newSelector;
@@ -99,7 +103,8 @@ export const ChromogenObserver = () => {
     console.log(`               NEW TRANSACTION! ${snapshot.getLoadable(recordingState).contents && recording ? 'and recording! Data below!' : 'But NOT recording.'}`)
     let addToHistory = false;
     // Map current snapshot to array of atom states
-  setTimeout( () => { if (snapshot.getLoadable(recordingState).contents && recording) { // Snapshot fires before with updated state BEFORE updating atom state
+//  setTimeout( () => { 
+   if (snapshot.getLoadable(recordingState).contents && recording) { // Snapshot fires before with updated state BEFORE updating atom state
       const state = writeables.map((item, i) => {
         const { key } = item;
         const value = snapshot.getLoadable(item).contents;
@@ -113,13 +118,12 @@ export const ChromogenObserver = () => {
 
       // Add current transaction snapshot to snapshots array
       if (addToHistory) {
-        snapCount += 1;
         snapshots.push({ state, selectors: [], snapCount });
-        console.log(`snapshot object number: ${snapCount}}`);
-        console.log(snapshot.getLoadable(recordingState).contents, recording)
+        console.log(`snapshot length: ${snapshots.length}`);
+        console.log('recording state:', snapshot.getLoadable(recordingState).contents, recording)
       }
-   };
-  }, 500)
+   }; 
+  // }, 500)  
   });
 
   // Render button to DOM for capturing test output, and creates invisible download link for test file
