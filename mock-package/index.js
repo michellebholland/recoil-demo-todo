@@ -49,7 +49,7 @@ export const selector = (config) => {
 
     // Only capture selector data if currently recording
     if (arg.get(recordingState)) {
-      if (snapshots.length === 0) {
+      setTimeout( () => { if (snapshots.length === 0) {
         // Promise-validation is expensive, so we only do it once, on initial load
         if (
           typeof newValue === 'object'
@@ -60,14 +60,15 @@ export const selector = (config) => {
           returnedPromise = true;
         } else {
           initialRender.push({ key, newValue });
+          console.log('initial render:', initialRender, 'snapshots.length:')
         }
       } else if (!returnedPromise) {
-        setTimeout(() => {
+        // setTimeout(() => {
           snapshots[snapshots.length - 1].selectors.push({ key, newValue });
-          console.log(snapshots)
         }
-          , 0);
-      }
+      }, 0)
+          // , 0);
+      // }
     }
 
     // Return out value from original get method
