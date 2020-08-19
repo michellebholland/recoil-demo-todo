@@ -1,638 +1,174 @@
 import { renderRecoilHook, act } from 'react-recoil-hooks-testing-library';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import {
-  todoListState,
-todoListFilterState,
-todoListSortState,
-filteredTodoListState,
-sortedTodoListState,
-todoListSortedStats,
-todoListStatsState,
-refreshFilterState,
+	todoListState,
+	todoListFilterState,
+	todoListSortState,
+	quoteNumberState,
+	allCompleteState,
+	refreshFilterState,
+	filteredTodoListState,
+	sortedTodoListState,
+	todoListSortedStats,
+	todoListStatsState,
+	filteredListContentState,
 
 } from '../src/store/store.js';
 
 // Hook to return atom/selector values and/or modifiers for react-recoil-hooks-testing-library
 const useStoreHook = () => {
-      const [todoListStateValue, settodoListState] = useRecoilState(todoListState);
-    const [todoListFilterStateValue, settodoListFilterState] = useRecoilState(todoListFilterState);
-    const [todoListSortStateValue, settodoListSortState] = useRecoilState(todoListSortState);
-    
-      const filteredTodoListStateValue = useRecoilValue(filteredTodoListState);
-    const sortedTodoListStateValue = useRecoilValue(sortedTodoListState);
-    const todoListSortedStatsValue = useRecoilValue(todoListSortedStats);
-    const todoListStatsStateValue = useRecoilValue(todoListStatsState);
-    const refreshFilterStateValue = useRecoilValue(refreshFilterState);
-    
-      return {
-        todoListStateValue,
-    settodoListState,
-    todoListFilterStateValue,
-    settodoListFilterState,
-    todoListSortStateValue,
-    settodoListSortState,
-    filteredTodoListStateValue,
-    sortedTodoListStateValue,
-    todoListSortedStatsValue,
-    todoListStatsStateValue,
-    refreshFilterStateValue,
-     
-      };
-    };
-    
-    describe('INITIAL RENDER', () => { 
-      const { result } = renderRecoilHook(useStoreHook); 
-    
-      it('filteredTodoListState should initialize correctly', () => {
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([]);
-        });
-    
-    it('sortedTodoListState should initialize correctly', () => {
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([]);
-        });
-    
-    it('todoListSortedStats should initialize correctly', () => {
-          expect(result.current.todoListSortedStatsValue).toStrictEqual({});
-        });
-    
-    it('todoListStatsState should initialize correctly', () => {
-          expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":0,"totalCompletedNum":0,"totalUncompletedNum":0,"percentCompleted":0});
-        });
-    
-    
-    });
-    
-    describe('SELECTORS', () => {
-      it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":1,"totalCompletedNum":0,"totalUncompletedNum":1,"percentCompleted":0});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":1,"totalCompletedNum":1,"totalUncompletedNum":0,"percentCompleted":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListFilterState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListSortState, todoListSortState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":2,"totalCompletedNum":1,"totalUncompletedNum":1,"percentCompleted":0.5});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListFilterState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":3,"totalCompletedNum":1,"totalUncompletedNum":2,"percentCompleted":0.3333333333333333});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListSortState, todoListSortState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListSortState, and todoListSortState update', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2,"high":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, filteredTodoListState should properly derive state when todoListFilterState, todoListFilterState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState(undefined);
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    result.current.settodoListFilterState(undefined);
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2,"high":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":3,"totalCompletedNum":2,"totalUncompletedNum":1,"percentCompleted":0.6666666666666666});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListFilterState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1,"high":1});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListSortState, todoListSortState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":3,"text":"","priority":"high","isComplete":true},{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"high":1,"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, filteredTodoListState should properly derive state when todoListFilterState, todoListSortState, and todoListSortState update', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":true}]);
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":3,"totalCompletedNum":1,"totalUncompletedNum":2,"percentCompleted":0.3333333333333333});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListSortState, todoListSortState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListSortState, and todoListSortState update', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2,"high":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":4,"totalCompletedNum":1,"totalUncompletedNum":3,"percentCompleted":0.25});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListSortState, todoListSortState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListSortState, and todoListSortState update', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2,"high":2});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":5,"totalCompletedNum":1,"totalUncompletedNum":4,"percentCompleted":0.2});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListSortState, and todoListSortState update', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2,"high":3});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListFilterState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState, todoListSortedStats todoListStatsState, and todoListStatsState should properly derive state when todoListState, todoListState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false},{"id":6,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(true);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":6,"totalCompletedNum":1,"totalUncompletedNum":5,"percentCompleted":0.16666666666666666});
-    
-    
-        });
-    
-    it('0filteredTodoListState, sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListSortState, and todoListSortState update', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false},{"id":6,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show All");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false},{"id":6,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false},{"id":6,"text":"","priority":"high","isComplete":false}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":2,"high":4});
-    
-    
-        });
-    
-    it('0sortedTodoListState todoListSortedStats, and todoListSortedStats should properly derive state when todoListFilterState, todoListFilterState updates', () => {
-          const { result } = renderRecoilHook(useStoreHook);
-    
-          act(() => {
-            result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true},{"id":2,"text":"","priority":"low","isComplete":false},{"id":3,"text":"","priority":"high","isComplete":false},{"id":4,"text":"","priority":"high","isComplete":false},{"id":5,"text":"","priority":"high","isComplete":false},{"id":6,"text":"","priority":"high","isComplete":false}]);
-    
-    result.current.settodoListFilterState("Show Completed");
-    
-    result.current.settodoListSortState(false);
-    
-    
-          });
-      
-          expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
-    
-    expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
-    
-    
-        });
-    
-    
-    })
+	const [todoListStateValue, settodoListState] = useRecoilState(todoListState);
+	const [todoListFilterStateValue, settodoListFilterState] = useRecoilState(todoListFilterState);
+	const [todoListSortStateValue, settodoListSortState] = useRecoilState(todoListSortState);
+	const [quoteNumberStateValue, setquoteNumberState] = useRecoilState(quoteNumberState);
+	const [allCompleteStateValue, setallCompleteState] = useRecoilState(allCompleteState);
+	const [refreshFilterStateValue, setrefreshFilterState] = useRecoilState(refreshFilterState);
+
+	const filteredTodoListStateValue = useRecoilValue(filteredTodoListState);
+	const sortedTodoListStateValue = useRecoilValue(sortedTodoListState);
+	const todoListSortedStatsValue = useRecoilValue(todoListSortedStats);
+	const todoListStatsStateValue = useRecoilValue(todoListStatsState);
+	const filteredListContentStateValue = useRecoilValue(filteredListContentState);
+
+  return {
+  	todoListStateValue,
+	settodoListState,
+	todoListFilterStateValue,
+	settodoListFilterState,
+	todoListSortStateValue,
+	settodoListSortState,
+	quoteNumberStateValue,
+	setquoteNumberState,
+	allCompleteStateValue,
+	setallCompleteState,
+	refreshFilterStateValue,
+	setrefreshFilterState,
+	filteredTodoListStateValue,
+	sortedTodoListStateValue,
+	todoListSortedStatsValue,
+	todoListStatsStateValue,
+	filteredListContentStateValue,
+
+  };
+};
+
+// describe('INITIAL RENDER', () => { 
+//   const { result } = renderRecoilHook(useStoreHook); 
+
+// 	it('filteredTodoListState should initialize correctly', () => {
+// 		expect(result.current.filteredTodoListStateValue).toStrictEqual([]);
+// 	});
+
+// 	it('sortedTodoListState should initialize correctly', () => {
+// 		expect(result.current.sortedTodoListStateValue).toStrictEqual([]);
+// 	});
+
+// 	it('allCompleteState should initialize correctly', () => {
+// 		expect(result.current.allCompleteStateValue).toStrictEqual(true);
+// 	});
+
+// 	it('filteredListContentState should initialize correctly', () => {
+// 		expect(result.current.filteredListContentStateValue).toStrictEqual(false);
+// 	});
+
+// 	it('todoListSortedStats should initialize correctly', () => {
+// 		expect(result.current.todoListSortedStatsValue).toStrictEqual({});
+// 	});
+
+// 	it('todoListStatsState should initialize correctly', () => {
+// 		expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":0,"totalCompletedNum":0,"totalUncompletedNum":0,"percentCompleted":0});
+// 	});
+
+// 	it('filteredTodoListState should initialize correctly', () => {
+// 		expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":false}]);
+// 	});
+
+// 	it('allCompleteState should initialize correctly', () => {
+// 		expect(result.current.allCompleteStateValue).toStrictEqual(false);
+// 	});
+
+// 	it('refreshFilterState should initialize correctly', () => {
+// 		expect(result.current.refreshFilterStateValue).toStrictEqual(null);
+// 	});
+
+// 	it('refreshFilterState should initialize correctly', () => {
+// 		expect(result.current.refreshFilterStateValue).toStrictEqual(null);
+// 	});
+
+
+// });
+
+describe('SELECTORS', () => {
+	it('sortedTodoListState, filteredListContentState, todoListSortedStats, and todoListStatsState should properly derive state when todoListState and allCompleteState update', () => {
+		const { result } = renderRecoilHook(useStoreHook);
+
+		act(() => {
+  			result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":false}]);
+
+			result.current.settodoListFilterState("Show All");
+
+			result.current.settodoListSortState(false);
+
+			result.current.setquoteNumberState(6);
+
+			result.current.setallCompleteState(false);
+
+			result.current.setrefreshFilterState(null);
+
+
+		});
+
+		expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":false}]);
+
+		expect(result.current.filteredListContentStateValue).toStrictEqual(true);
+
+		expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
+
+		expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":1,"totalCompletedNum":0,"totalUncompletedNum":1,"percentCompleted":0});
+
+
+	});
+
+	it('filteredTodoListState, allCompleteState, refreshFilterState, refreshFilterState, sortedTodoListState, filteredListContentState, todoListSortedStats, and todoListStatsState should properly derive state when todoListState and allCompleteState update', () => {
+		const { result } = renderRecoilHook(useStoreHook);
+
+		act(() => {
+  			result.current.settodoListState([{"id":1,"text":"","priority":"low","isComplete":true}]);
+
+			result.current.settodoListFilterState("Show All");
+
+			result.current.settodoListSortState(false);
+
+			result.current.setquoteNumberState(6);
+
+			result.current.setallCompleteState(true);
+
+			result.current.setrefreshFilterState(null);
+
+
+		});
+
+		expect(result.current.filteredTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
+
+		expect(result.current.allCompleteStateValue).toStrictEqual(true);
+
+		expect(result.current.refreshFilterStateValue).toStrictEqual(null);
+
+		expect(result.current.refreshFilterStateValue).toStrictEqual(null);
+
+		expect(result.current.sortedTodoListStateValue).toStrictEqual([{"id":1,"text":"","priority":"low","isComplete":true}]);
+
+		expect(result.current.filteredListContentStateValue).toStrictEqual(true);
+
+		expect(result.current.todoListSortedStatsValue).toStrictEqual({"low":1});
+
+		expect(result.current.todoListStatsStateValue).toStrictEqual({"totalNum":1,"totalCompletedNum":1,"totalUncompletedNum":0,"percentCompleted":1});
+
+
+	});
+
+
+})
 //     describe('SELECTORS', () => {
 //       it('1filteredTodoListState, sortedTodoListState, todoListSortedStats and todoListStatsState should properly derive state when todoListState updates', () => {
 //           const { result } = renderRecoilHook(useStoreHook);

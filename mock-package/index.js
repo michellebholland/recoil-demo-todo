@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Children } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   // eslint-disable-next-line camelcase
   useRecoilTransactionObserver_UNSTABLE,
@@ -9,133 +9,167 @@ import {
 import output from './testString';
 
 // ----- TESTING -----
-// Arrays used to compose test string
+// Arrays used to compose test strings
 const writeables = [];
-const readables = [];
-let snapshots = [];
+const snapshots = [];
 const initialRender = [];
-let snapCount = 0;
-let last;
+let readables = [];
 
+// State for recording toggle
 const recordingState = recoilAtom({ key: 'recordingState', default: true });
 
 // ----- SHADOW CONSTRUCTORS for SELECTOR / ATOM -----
 export const selector = (config) => {
   const { key, get, set } = config;
-  // Inject code to "get" method of selector
-  const getter = get 
-    ? (arg) => {
-        const newValue = get(arg);
-        if (arg.get(recordingState)) {
-          const len = snapshots.length;
-          if (len === 0) {
-            initialRender.push({ key, newValue });
-          } else {
-           setTimeout(() =>  {
-            snapshots[len - 1].selectors.push({ key, newValue });
-            console.log({key, newValue}, 'updated snapshot length: ', snapshots.length, 'snapshot[len - 1].selectors.length', snapshots[snapshots.length - 1].selectors.length);
-           }
-           , 500) 
-          }
-        }
-        return newValue;
-      }
-    : null;
+  let returnedPromise = false;
 
-  // Create new config object with injected getter
-  const newConfig = { key, get: getter };
+  /**
+   * If get is undefined, native Async, or transpiled generator-based async from Babel (id'd via RegEx),
+   * we don't do any injecting or tracking. It just gets created & returned back out.
+   *
+   * Otherwise, we attempt to wrap it with a custom getter that logs the return
+   * value on each update to the corresponding snapshot in the snapshots array.
+   *
+   * If get returns a promise on page load, we delete it from the readables array
+   * and do not track it on subsequent calls (via "returnedPromise" flag).
+   */
 
-  // Inject code to "set" method of selector (if defined)
-  if (set) {
-    newConfig.set = (...args) => set(...args);
+  if (
+    !get
+    || get.constructor.name === 'AsyncFunction'
+    || get.toString().match(/^\s*return\s*_get.*\.apply\(this, arguments\);$/m)
+  ) {
+    return recoilSelector(config);
   }
 
-  // Create Recoil selector with injected properties
-  const newSelector = recoilSelector(newConfig);
+  // Wrap get method with tracking logic
+  const getter = (arg) => {
+    // Run user-defined get method & capture its return value
+    const newValue = get(arg);
 
-  // Add selector object to "readables" array
-  readables.push(newSelector);
-  // if (set) writeables.push(newSelector); // allows us to list writeable selectors in test string description
+    // Only capture selector data if currently recording
+    if (arg.get(recordingState)) {
+      if (snapshots.length === 0) {
+        // Promise-validation is expensive, so we only do it once, on initial load
+        if (
+          typeof newValue === 'object'
+          && newValue !== null
+          && Object.prototype.toString.call(newValue) === '[object Promise]'
+        ) {
+          readables = readables.filter((el) => el.key !== key);
+          returnedPromise = true;
+        } else {
+          initialRender.push({ key, newValue });
+        }
+      } else if (!returnedPromise) {
+        setTimeout(() => {
+          snapshots[snapshots.length - 1].selectors.push({ key, newValue });
+          console.log(snapshots)
+        }
+          , 0);
+      }
+    }
 
-  // Return the normal selector out to the app
-  return newSelector;
+    // Return out value from original get method
+    return newValue;
+  };
+
+  // Create a new config object with updated properties
+  const newConfig = { key, get: getter };
+
+  // Wrap set method with tracking logic
+  if (set) {
+    const setter = (...args) => {
+      const value = args[args.length - 1]
+      if (snapshots.length > 0) {
+        setTimeout(() => {
+          const writer = snapshots[snapshots.length - 1].state.find(writeable => writeable.key === key);
+        // Overwrite snapshot's 'get' value with user-provided newValue
+          writer.value = value;
+          // flag writeable selector so we know to amend test string
+          writer.set = true;
+          console.log(snapshots)
+        }
+          , 0);
+      }
+      return set(...args)
+    }
+      newConfig.set = setter;
+    // Add to writeables so we can create setter hook in test string
+     writeables.push(recoilSelector(newConfig)); 
+   }
+
+
+
+  // Create selector & add to readables for test setup
+  const trackedSelector = recoilSelector(newConfig);
+  readables.push(trackedSelector);
+  return trackedSelector;
 };
 
+// Track atoms for test setup via writeables array
 export const atom = (config) => {
   const newAtom = recoilAtom(config);
-  newAtom.default = config.default; // can't destructure default from config?
   writeables.push(newAtom);
   return newAtom;
 };
 
 // ----- TRANSACTION PROVIDER -----
 const buttonStyle = {
-  display: 'block',
-  position: 'absolute',
-  top: '10px',
-  left: '10px',
-  margin: '0px',
+  display: 'inline-block',
+  margin: '10px',
   padding: '0px',
   height: '10px',
   width: '10px',
 };
 
-// TODO: size div correctly to content
 // Used to ensure appropriate button contrast for varying page backgrounds
 const divStyle = {
   display: 'inline-block',
   position: 'absolute',
+  top: '10px',
+  left: '10px',
   backgroundColor: 'grey',
   margin: 0,
+  padding: 0,
+  zIndex: 999999,
 };
 
-// Provider component used to access state snapshots
 export const ChromogenObserver = () => {
   // File stores URL for generated test file Blob containing output() string
   const [file, setFile] = useState(null);
   const [recording, setRecording] = useRecoilState(recordingState);
 
-  // Auto-click download link when a new file is generated (via button click)
+  // Auto-click download link when a new file is generated
   useEffect(() => document.getElementById('chromogen-download').click(), [file]);
 
-  useRecoilTransactionObserver_UNSTABLE(({ snapshot }) => {
-    // console.log(`           NEW TRANSACTION, recordingState: ${recording}, *snapshot*recordingState: ${snapshot.getLoadable(recordingState).contents}`)
-    console.log(`               NEW TRANSACTION! ${snapshot.getLoadable(recordingState).contents && recording ? 'and recording! Data below!' : 'But NOT recording.'}`)
-    let addToHistory = false;
+  useRecoilTransactionObserver_UNSTABLE(({ previousSnapshot, snapshot }) => {
     // Map current snapshot to array of atom states
-//  setTimeout( () => { 
-   if (snapshot.getLoadable(recordingState).contents && recording) { // Snapshot fires before with updated state BEFORE updating atom state
-      const state = writeables.map((item, i) => {
+    // Can't directly check recording hook b/c TransactionObserver runs before state update
+    if (snapshot.getLoadable(recordingState).contents) {
+      // Exclude selectors – they are added in shadow set method above
+      const state = writeables.map((item) => {
         const { key } = item;
         const value = snapshot.getLoadable(item).contents;
-        const history = snapshots.length;
-        // Check whether value is updated from last snapshot
-        const updated = (history === 0) ? item.default !== value : snapshots[history - 1].state.find((el) => el.key === key).value !== value;
-        if (updated) addToHistory = true;
-        console.log(`writeable ${i}: ${key}\n value: ${value}\n updated: ${updated}\n`)
+        const previous = previousSnapshot.getLoadable(item).contents;
+        const updated = value !== previous;
         return { key, value, updated };
       });
 
       // Add current transaction snapshot to snapshots array
-      if (addToHistory) {
-        snapshots.push({ state, selectors: [], snapCount });
-        console.log(`snapshot length: ${snapshots.length}`);
-        console.log('recording state:', snapshot.getLoadable(recordingState).contents, recording)
-      }
-   }; 
-  // }, 500)  
+      snapshots.push({ state, selectors: [] });
+    }
   });
 
-  // Render button to DOM for capturing test output, and creates invisible download link for test file
+  // Invisible anchor tag needed for file download
   return (
     <div style={divStyle}>
       <button
         aria-label="capture test"
-        style={{ ...buttonStyle, backgroundColor: 'green' }}
+        style={{ ...buttonStyle, backgroundColor: 'limegreen' }}
         type="button"
-        onClick={() => 
-         
-           setFile(
+        onClick={() =>
+          setFile(
             URL.createObjectURL(
               new Blob([output(writeables, readables, snapshots, initialRender)]),
             ),
@@ -144,11 +178,11 @@ export const ChromogenObserver = () => {
       />
       <button
         aria-label={recording ? 'pause' : 'record'}
-        style={{ ...buttonStyle, backgroundColor: recording ? 'red' : 'yellow', left: '30px' }}
+        style={{ ...buttonStyle, backgroundColor: recording ? 'red' : 'yellow' }}
         type="button"
-        onClick={() => 
-          setRecording(!recording)
-        }
+        onClick={() => {
+          setRecording(!recording);
+        }}
       />
       <a
         download="chromogen.test.js"
